@@ -3,91 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Faculty Records</title>
+    <title>Faculty Analytics | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- PASTE YOUR SAME FIREBASE CONFIG HERE ---
+        // 1. PASSWORD GATE
+        const pass = prompt("Enter Administrator Password:");
+        if (pass !== "1122") { 
+            alert("Unauthorized Access");
+            document.body.innerHTML = "<div class='h-screen flex items-center justify-center bg-gray-100 text-red-500 font-bold text-2xl'>ACCESS DENIED</div>";
+        }
+
         const firebaseConfig = {
-  apiKey: "AIzaSyBrPtgCAM2DxKKExfqzZFmPFZx9ByMt_zA",
-  authDomain: "faculty-log-35efd.firebaseapp.com",
-  projectId: "faculty-log-35efd",
-  storageBucket: "faculty-log-35efd.firebasestorage.app",
-  messagingSenderId: "857603228966",
-  appId: "1:857603228966:web:7b6420fe4d0e241f91ede7",
-  measurementId: "G-BG76MMD0SD"
+            apiKey: "AIzaSyBrPtgCAM2DxKKExfqzZFmPFZx9ByMt_zA",
+            authDomain: "faculty-log-35efd.firebaseapp.com",
+            projectId: "faculty-log-35efd",
+            storageBucket: "faculty-log-35efd.firebasestorage.app",
+            messagingSenderId: "857603228966",
+            appId: "1:857603228966:web:7b6420fe4d0e241f91ede7"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const logTable = document.getElementById('logTable');
-        const totalStats = document.getElementById('totalStats');
+        let allLogs = [];
+        const facultyList = ["Fadil", "Yasar", "Yadu"];
 
-        // Real-time listener to fetch logs
+        // 2. DATA LISTENER
         const q = query(collection(db, "faculty_logs"), orderBy("timestamp", "desc"));
-        
         onSnapshot(q, (snapshot) => {
-            logTable.innerHTML = "";
-            let totalInstituteHours = 0;
+            allLogs = [];
+            snapshot.forEach(doc => allLogs.push({id: doc.id, ...doc.data()}));
+            updateDashboard();
+        });
 
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const hours = parseFloat(data.netHours) || 0;
-                totalInstituteHours += hours;
+        // 3. UI LOGIC
+        window.showFacultyDetails = (name) => {
+            const filtered = allLogs.filter(log => log.facultyName === name);
+            document.getElementById('facultyMenu').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('hidden');
+            document.getElementById('detailTitle').innerText = name + "'s Reports";
+            
+            const tableBody = document.getElementById('detailTable');
+            tableBody.innerHTML = "";
+            let total = 0;
 
-                const row = `
-                    <tr class="border-b hover:bg-slate-50 transition">
-                        <td class="p-4 font-semibold text-slate-700">${data.facultyName}</td>
-                        <td class="p-4 text-slate-600">${data.section}</td>
-                        <td class="p-4 text-slate-600">${data.subtopic}</td>
-                        <td class="p-4 font-bold text-indigo-600">${data.netHours}</td>
-                        <td class="p-4 text-slate-500 text-sm">${data.softwareUsed || 'N/A'}</td>
-                        <td class="p-4 text-slate-400 text-xs">${data.timestamp?.toDate().toLocaleDateString() || 'Pending...'}</td>
+            filtered.forEach(log => {
+                total += parseFloat(log.netHours) || 0;
+                tableBody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-4 text-sm font-medium">${log.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
+                        <td class="p-4 text-sm">${log.section}</td>
+                        <td class="p-4 text-sm italic text-gray-600">${log.subtopic}</td>
+                        <td class="p-4 text-sm font-bold text-indigo-600">${log.netHours}</td>
                     </tr>
                 `;
-                logTable.innerHTML += row;
             });
+            document.getElementById('facultyTotal').innerText = total.toFixed(2) + " hrs";
+        };
 
-            totalStats.innerText = totalInstituteHours.toFixed(2) + " Total Staff Hours";
-        });
+        window.goBack = () => {
+            document.getElementById('facultyMenu').classList.remove('hidden');
+            document.getElementById('detailView').classList.add('hidden');
+        };
+
+        function updateDashboard() {
+            // Update summary counts on the main cards
+            facultyList.forEach(name => {
+                const count = allLogs.filter(log => log.facultyName === name).length;
+                document.getElementById(`count-${name}`).innerText = count + " sessions logged";
+            });
+        }
     </script>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen font-sans">
 
-    <nav class="bg-indigo-900 text-white p-6 shadow-lg">
+    <nav class="bg-indigo-950 text-white py-6 px-8 shadow-xl mb-10">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tight uppercase">Institute Admin Panel</h1>
-            <div id="totalStats" class="bg-indigo-700 px-4 py-2 rounded-lg text-sm font-bold">Loading stats...</div>
+            <h1 class="text-2xl font-black tracking-tighter">ADMIN PANEL</h1>
+            <span class="text-xs bg-indigo-800 px-3 py-1 rounded-full text-indigo-200 border border-indigo-700">Encrypted Session</span>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto mt-10 p-4">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-slate-800">Recent Class Logs</h2>
-                <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded font-bold transition">Print Report</button>
+    <main class="max-w-6xl mx-auto px-4">
+        
+        <div id="facultyMenu" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div onclick="showFacultyDetails('Fadil')" class="cursor-pointer bg-white p-8 rounded-3xl shadow-sm border-b-4 border-indigo-500 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div class="h-12 w-12 bg-indigo-100 rounded-full mb-4 flex items-center justify-center text-indigo-600 font-bold text-xl">F</div>
+                <h2 class="text-2xl font-bold text-slate-800">Fadil</h2>
+                <p id="count-Fadil" class="text-slate-400 text-sm mt-1">Loading...</p>
+                <button class="mt-6 text-indigo-600 text-xs font-bold uppercase tracking-widest">View History →</button>
             </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-widest">
-                            <th class="p-4 font-bold">Faculty</th>
-                            <th class="p-4 font-bold">Section</th>
-                            <th class="p-4 font-bold">Subtopic</th>
-                            <th class="p-4 font-bold">Duration</th>
-                            <th class="p-4 font-bold">Software</th>
-                            <th class="p-4 font-bold">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logTable" class="text-sm">
-                        </tbody>
-                </table>
+
+            <div onclick="showFacultyDetails('Yasar')" class="cursor-pointer bg-white p-8 rounded-3xl shadow-sm border-b-4 border-emerald-500 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div class="h-12 w-12 bg-emerald-100 rounded-full mb-4 flex items-center justify-center text-emerald-600 font-bold text-xl">Y</div>
+                <h2 class="text-2xl font-bold text-slate-800">Yasar</h2>
+                <p id="count-Yasar" class="text-slate-400 text-sm mt-1">Loading...</p>
+                <button class="mt-6 text-emerald-600 text-xs font-bold uppercase tracking-widest">View History →</button>
+            </div>
+
+            <div onclick="showFacultyDetails('Yadu')" class="cursor-pointer bg-white p-8 rounded-3xl shadow-sm border-b-4 border-orange-500 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div class="h-12 w-12 bg-orange-100 rounded-full mb-4 flex items-center justify-center text-orange-600 font-bold text-xl">Y</div>
+                <h2 class="text-2xl font-bold text-slate-800">Yadu</h2>
+                <p id="count-Yadu" class="text-slate-400 text-sm mt-1">Loading...</p>
+                <button class="mt-6 text-orange-600 text-xs font-bold uppercase tracking-widest">View History →</button>
             </div>
         </div>
+
+        <div id="detailView" class="hidden animate-in fade-in duration-500">
+            <button onclick="goBack()" class="mb-6 flex items-center text-slate-500 hover:text-indigo-600 font-bold text-sm">
+                ← BACK TO DASHBOARD
+            </button>
+            
+            <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="p-8 border-b border-slate-100 flex justify-between items-end">
+                    <div>
+                        <h2 id="detailTitle" class="text-3xl font-black text-slate-800">Faculty Report</h2>
+                        <p class="text-slate-400 text-sm mt-1">Detailed session breakdown</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total Contribution</p>
+                        <p id="facultyTotal" class="text-4xl font-black text-indigo-600 leading-tight">0.00 hrs</p>
+                    </div>
+                </div>
+                
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-widest font-bold">
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Section</th>
+                            <th class="p-4">Topic</th>
+                            <th class="p-4">Net Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTable" class="divide-y divide-slate-100">
+                        </tbody>
+                </table>
+                <div class="p-6 bg-slate-50">
+                    <button onclick="window.print()" class="w-full py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-white hover:shadow-md transition">Export as PDF</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
 </body>
