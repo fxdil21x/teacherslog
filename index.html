@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Session Portal | Institute</title>
+    <title>Faculty Portal | Catalyst Education</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -35,6 +35,8 @@
 
                 const formData = {
                     facultyName: document.getElementById('facultyName').value,
+                    branch: document.getElementById('branch').value,
+                    batch: document.getElementById('batch').value,
                     section: document.getElementById('section').value,
                     subtopic: document.getElementById('subtopic').value,
                     startTime: document.getElementById('startTime').value,
@@ -49,12 +51,12 @@
 
                 try {
                     await addDoc(collection(db, "faculty_logs"), formData);
-                    alert("Log secure. Data synced to cloud.");
+                    alert("Session Logged Successfully!");
                     e.target.reset();
                     document.getElementById('totalHours').innerText = "0.00 hrs";
                     updateSubtopics("");
                 } catch (error) {
-                    alert("Connection error. Try again.");
+                    alert("Error connecting to cloud.");
                 } finally {
                     btnText.innerText = "Submit Faculty Log";
                     btn.disabled = false;
@@ -66,72 +68,95 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
+            /* Kept background photo with a light overlay for readability */
+            background: linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.85)), 
                         url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            color: white;
+            color: #1e293b;
         }
 
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .light-glass { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
         }
 
         input, select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            height: 54px; /* Better for mobile touch */
+            transition: all 0.2s ease;
         }
 
         input:focus, select:focus {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-color: rgba(99, 102, 241, 0.5) !important;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1 !important;
             outline: none;
+            background: #fff !important;
         }
 
-        option { background: #0f172a; color: white; }
-
-        input:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .stat-box {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+        label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin-bottom: 8px;
+            margin-left: 4px;
+            display: block;
         }
 
-        /* Custom scrollbar for better look */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .time-card {
+            background: rgba(99, 102, 241, 0.04);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center py-12 px-4">
+<body class="min-h-screen flex items-center justify-center py-10 px-4">
 
-    <div class="max-w-3xl w-full glass-card shadow-2xl rounded-[2.5rem] overflow-hidden">
-        <div class="pt-10 pb-6 text-center border-b border-white/5">
-            <h1 class="text-4xl font-extrabold tracking-tighter uppercase">Faculty Portal</h1>
-            <p class="text-indigo-300/60 text-xs font-semibold mt-2 tracking-[0.2em] uppercase">Developed by Fadil</p>
+    <div class="max-w-3xl w-full light-glass rounded-[2.5rem] overflow-hidden">
+        <div class="pt-10 pb-6 text-center border-b border-slate-200/50">
+            <h1 class="text-3xl font-black tracking-tight text-slate-900">FACULTY PORTAL</h1>
+            <p class="text-indigo-600 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Session Logging System</p>
         </div>
 
-        <form id="logForm" class="p-8 md:p-12 space-y-8">
+        <form id="logForm" class="p-6 md:p-10 space-y-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Faculty Name</label>
-                    <select id="facultyName" required class="w-full p-4 rounded-2xl outline-none">
-                        <option value="">Select Identity</option>
+                    <label>Faculty Name</label>
+                    <select id="facultyName" required class="w-full px-4 rounded-2xl shadow-sm">
+                        <option value="">Select Name</option>
                         <option value="Fadil">Fadil</option>
                         <option value="Yasar">Yasar</option>
                         <option value="Yadu">Yadu</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Session Section</label>
-                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full p-4 rounded-2xl outline-none">
+                    <label>Branch Location</label>
+                    <select id="branch" required class="w-full px-4 rounded-2xl shadow-sm">
+                        <option value="">Select Branch</option>
+                        <option value="Kannur">Kannur Branch</option>
+                        <option value="Vadakara">Vadakara Branch</option>
+                        <option value="Calicut">Calicut Branch</option>
+                        <option value="Manjeri">Manjeri Branch</option>
+                        <option value="Trissur">Trissur Branch</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label>Batch Code / Name</label>
+                    <input type="text" id="batch" required placeholder="e.g. BCM-2024" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+                <div>
+                    <label>Session Section</label>
+                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full px-4 rounded-2xl shadow-sm">
                         <option value="">Select Section</option>
                         <option value="Part 1 Sec A">Part 1 Sec A</option>
                         <option value="Part 1 Sec B">Part 1 Sec B</option>
@@ -140,47 +165,48 @@
             </div>
 
             <div id="subtopicContainer">
-                <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Subtopic Covered</label>
-                <input type="text" id="subtopic" required placeholder="Select section..." class="w-full p-4 rounded-2xl outline-none" disabled>
+                <label>Subtopic Covered</label>
+                <input type="text" id="subtopic" required placeholder="Select section first..." class="w-full px-4 rounded-2xl shadow-sm" disabled>
             </div>
 
-            <div class="p-8 rounded-[2rem] stat-box">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-indigo-400 font-bold text-xs uppercase tracking-[0.15em]">Time Management</h3>
-                    <span id="totalHours" class="text-3xl font-black text-white">0.00 hrs</span>
+            <div class="p-6 rounded-3xl time-card">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Time Management</h3>
+                    <span id="totalHours" class="text-2xl font-black text-slate-900">0.00 hrs</span>
                 </div>
-                <div class="grid grid-cols-3 gap-6">
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Start</label>
-                        <input type="time" id="startTime" required class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Finish</label>
-                        <input type="time" id="endTime" required class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Break</label>
-                        <input type="number" id="breakTime" value="0" class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
-                    </div>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Class Qns</label>
-                    <input type="number" id="classQs" placeholder="0" class="w-full p-4 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">HW Qns</label>
-                    <input type="number" id="hwQs" placeholder="0" class="w-full p-4 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Tools Used</label>
-                    <input type="text" id="software" placeholder="Excel, SAP..." class="w-full p-4 rounded-2xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="text-indigo-400">Start Time</label>
+                        <input type="time" id="startTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
+                    <div>
+                        <label class="text-indigo-400">End Time</label>
+                        <input type="time" id="endTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
+                    <div>
+                        <label class="text-indigo-400">Break (Mins)</label>
+                        <input type="number" id="breakTime" value="0" min="0" class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-2xl shadow-indigo-500/20 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label>Class Qns</label>
+                    <input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+                <div>
+                    <label>HW Qns</label>
+                    <input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+                <div>
+                    <label>Tools Used</label>
+                    <input type="text" id="software" placeholder="Excel, etc." class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-[0.97] uppercase tracking-widest text-xs mt-4">
                 <span id="btnText">Submit Faculty Log</span>
             </button>
         </form>
@@ -189,20 +215,20 @@
     <script>
         window.updateSubtopics = function(val) {
             const container = document.getElementById('subtopicContainer');
-            const label = `<label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Subtopic Covered</label>`;
+            const label = `<label>Subtopic Covered</label>`;
             if (val === "Part 1 Sec A") {
                 container.innerHTML = `${label}
-                    <select id="subtopic" required class="w-full p-4 rounded-2xl outline-none">
+                    <select id="subtopic" required class="w-full px-4 rounded-2xl shadow-sm outline-none">
                         <option value="">Select Accounting Topic</option>
                         <option value="Income statement">1. Income statement</option>
                         <option value="Balance sheet">2. Balance sheet</option>
                     </select>`;
             } else if (val === "Part 1 Sec B") {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Type subtopic name" class="w-full p-4 rounded-2xl outline-none">`;
+                    <input type="text" id="subtopic" required placeholder="Type subtopic name" class="w-full px-4 rounded-2xl shadow-sm outline-none">`;
             } else {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full p-4 rounded-2xl outline-none" disabled>`;
+                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full px-4 rounded-2xl shadow-sm outline-none" disabled>`;
             }
         };
 
