@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Session Portal | Institute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- REPLACE THE BELOW WITH YOUR FIREBASE CONFIG ---
+        const firebaseConfig = {
+  apiKey: "AIzaSyBrPtgCAM2DxKKExfqzZFmPFZx9ByMt_zA",
+  authDomain: "faculty-log-35efd.firebaseapp.com",
+  projectId: "faculty-log-35efd",
+  storageBucket: "faculty-log-35efd.firebasestorage.app",
+  messagingSenderId: "857603228966",
+  appId: "1:857603228966:web:7b6420fe4d0e241f91ede7",
+  measurementId: "G-BG76MMD0SD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Form Submission Logic
+        document.getElementById('logForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('submit-btn');
+            const btnText = document.getElementById('btnText');
+            
+            btnText.innerText = "Saving to Cloud...";
+            document.getElementById('submitBtn').disabled = true;
+
+            const formData = {
+                facultyName: document.getElementById('facultyName').value,
+                section: document.getElementById('section').value,
+                subtopic: document.getElementById('subtopic').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                breakMinutes: document.getElementById('breakTime').value,
+                netHours: document.getElementById('totalHours').innerText,
+                classQuestions: document.getElementById('classQs').value,
+                hwQuestions: document.getElementById('hwQs').value,
+                softwareUsed: document.getElementById('software').value,
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "faculty_logs"), formData);
+                alert("Data logged successfully!");
+                e.target.reset();
+                document.getElementById('totalHours').innerText = "0.00 hrs";
+                updateSubtopics(""); // Reset subtopic field
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error saving data. Check Firebase Config.");
+            } finally {
+                btnText.innerText = "Submit Faculty Log";
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+
+    <div class="max-w-3xl mx-auto glass-card shadow-2xl rounded-3xl overflow-hidden border border-white">
+        <div class="bg-indigo-600 p-8 text-white">
+            <h1 class="text-3xl font-bold tracking-tight">Faculty Log System</h1>
+            <p class="text-indigo-100 opacity-90 mt-1">Record class details and automated hours calculation.</p>
+        </div>
+
+        <form id="logForm" class="p-8 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Faculty Name</label>
+                    <select id="facultyName" required class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <option value="">-- Select Name --</option>
+                        <option value="Fadil">Fadil</option>
+                        <option value="Yasar">Yasar</option>
+                        <option value="Yadu">Yadu</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Section</label>
+                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <option value="">-- Select Section --</option>
+                        <option value="Part 1 Sec A">Part 1 Sec A</option>
+                        <option value="Part 1 Sec B">Part 1 Sec B</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="subtopicContainer">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Subtopic Covered</label>
+                <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none" disabled>
+            </div>
+
+            <div class="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
+                <h3 class="text-indigo-800 font-bold text-sm mb-4 uppercase tracking-wider">Class Duration</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase">Start Time</label>
+                        <input type="time" id="startTime" required class="time-trigger w-full mt-1 p-2 rounded-lg border-none shadow-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase">End Time</label>
+                        <input type="time" id="endTime" required class="time-trigger w-full mt-1 p-2 rounded-lg border-none shadow-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase">Break (Min)</label>
+                        <input type="number" id="breakTime" value="0" min="0" class="time-trigger w-full mt-1 p-2 rounded-lg border-none shadow-sm">
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-between items-center border-t border-indigo-200 pt-4">
+                    <span class="text-slate-600 font-medium">Total Net Hours:</span>
+                    <span id="totalHours" class="text-2xl font-black text-indigo-600">0.00 hrs</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Class Qns</label>
+                    <input type="number" id="classQs" placeholder="0" class="w-full p-3 border rounded-xl bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Homework Qns</label>
+                    <input type="number" id="hwQs" placeholder="0" class="w-full p-3 border rounded-xl bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Software</label>
+                    <input type="text" id="software" placeholder="Excel, SAP..." class="w-full p-3 border rounded-xl bg-white">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-95">
+                <span id="btnText">Submit Faculty Log</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // 1. DYNAMIC SUBTOPIC LOGIC
+        function updateSubtopics(val) {
+            const container = document.getElementById('subtopicContainer');
+            if (val === "Part 1 Sec A") {
+                container.innerHTML = `
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Subtopic Covered</label>
+                    <select id="subtopic" required class="w-full p-3 bg-white border border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="">-- Select Accounting Topic --</option>
+                        <option value="Income statement">1. Income statement</option>
+                        <option value="Balance sheet">2. Balance sheet</option>
+                    </select>`;
+            } else {
+                container.innerHTML = `
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Subtopic Covered</label>
+                    <input type="text" id="subtopic" required placeholder="Enter subtopic name" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">`;
+            }
+        }
+
+        // 2. TIME CALCULATION LOGIC
+        const timeInputs = document.querySelectorAll('.time-trigger');
+        timeInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const start = document.getElementById('startTime').value;
+                const end = document.getElementById('endTime').value;
+                const breakMin = parseInt(document.getElementById('breakTime').value) || 0;
+
+                if (start && end) {
+                    const sTime = new Date(`2000-01-01T${start}`);
+                    const eTime = new Date(`2000-01-01T${end}`);
+                    
+                    let diff = (eTime - sTime) / 60000; // minutes
+                    if (diff < 0) diff += 1440; // handle overnight
+
+                    const netMinutes = Math.max(0, diff - breakMin);
+                    document.getElementById('totalHours').innerText = (netMinutes / 60).toFixed(2) + " hrs";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
