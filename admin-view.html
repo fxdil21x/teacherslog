@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Audit | Professional Dashboard</title>
+    <title>Admin Dashboard | Catalyst Audit</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // PASSWORD GATE
-        const pass = prompt("Enter Administrator Password:");
+        const pass = prompt("Enter Admin Key:");
         if (pass !== "1122") { 
-            alert("Unauthorized Access");
-            document.body.innerHTML = "<div class='h-screen flex items-center justify-center bg-slate-50 text-slate-400 font-bold text-xl uppercase tracking-widest'>Access Denied</div>";
+            document.body.innerHTML = `<div class="h-screen flex items-center justify-center bg-slate-950 text-slate-500 tracking-[0.5em] uppercase font-bold">Access Denied</div>`;
         }
 
         const firebaseConfig = {
@@ -37,14 +36,14 @@
         onSnapshot(q, (snapshot) => {
             allLogs = [];
             snapshot.forEach(doc => allLogs.push({id: doc.id, ...doc.data()}));
-            updateDashboard();
+            updateSummaryCards();
         });
 
         window.showFacultyDetails = (name) => {
             const filtered = allLogs.filter(log => log.facultyName === name);
             document.getElementById('facultyMenu').classList.add('hidden');
             document.getElementById('detailView').classList.remove('hidden');
-            document.getElementById('detailTitle').innerText = name + "'s Audit";
+            document.getElementById('detailTitle').innerText = name + "'s Audit Report";
             
             const tableBody = document.getElementById('detailTable');
             tableBody.innerHTML = "";
@@ -52,16 +51,26 @@
 
             filtered.forEach(log => {
                 totalHrs += parseFloat(log.netHours) || 0;
+                
+                // Format Software array into badges
+                const softwareBadges = (log.softwares || []).map(s => 
+                    `<span class="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded text-[9px] font-bold uppercase mr-1 border border-indigo-500/20">${s}</span>`
+                ).join('');
+
                 tableBody.innerHTML += `
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition text-xs">
-                        <td class="p-4 font-semibold text-slate-700">${log.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
-                        <td class="p-4 font-bold text-indigo-600">${log.section}</td>
-                        <td class="p-4 text-slate-600">${log.subtopic}</td>
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors text-xs">
+                        <td class="p-4 text-slate-400">${log.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
+                        <td class="p-4">
+                            <div class="font-bold text-white">${log.branch || '-'}</div>
+                            <div class="text-[10px] text-slate-500 uppercase">${log.batch || '-'}</div>
+                        </td>
+                        <td class="p-4 font-semibold text-indigo-400">${log.section}</td>
+                        <td class="p-4 text-slate-300">${log.subtopic}</td>
                         <td class="p-4 text-slate-400">${log.startTime} - ${log.endTime}</td>
-                        <td class="p-4 font-extrabold text-slate-900">${log.netHours}</td>
-                        <td class="p-4 text-center font-bold text-blue-600 bg-blue-50/30">${log.classQuestions || 0}</td>
-                        <td class="p-4 text-center font-bold text-emerald-600 bg-emerald-50/30">${log.hwQuestions || 0}</td>
-                        <td class="p-4 text-slate-400 uppercase font-medium text-[10px]">${log.softwareUsed || '-'}</td>
+                        <td class="p-4 font-black text-white">${log.netHours}</td>
+                        <td class="p-4 text-center text-blue-400 font-bold">${log.classQuestions || 0}</td>
+                        <td class="p-4 text-center text-emerald-400 font-bold">${log.hwQuestions || 0}</td>
+                        <td class="p-4">${softwareBadges}</td>
                     </tr>
                 `;
             });
@@ -73,11 +82,11 @@
             document.getElementById('detailView').classList.add('hidden');
         };
 
-        function updateDashboard() {
+        function updateSummaryCards() {
             facultyList.forEach(name => {
                 const count = allLogs.filter(log => log.facultyName === name).length;
                 const element = document.getElementById(`count-${name}`);
-                if(element) element.innerText = count + " entries";
+                if(element) element.innerText = count + " entries recorded";
             });
         }
     </script>
@@ -85,112 +94,110 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc;
-            color: #1e293b;
+            background: #020617;
+            color: white;
         }
 
         .glass-card { 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 1);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .faculty-card {
-            transition: all 0.3s ease;
-            background: white;
-            border: 1px solid #e2e8f0;
+        .faculty-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .faculty-card:hover {
-            transform: translateY(-4px);
-            border-color: #6366f1;
-            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
+        .faculty-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-5px);
         }
 
-        /* PRINT / PDF FIXES */
+        /* PRINT ENGINE - FORCES PDF TO BE HIGH CONTRAST */
         @media print {
-            @page { margin: 1cm; }
-            body { background: white !important; }
+            body { background: white !important; color: black !important; }
             .no-print { display: none !important; }
-            .glass-card { 
-                box-shadow: none !important; 
-                border: 1px solid #eee !important;
-                background: white !important;
-                backdrop-filter: none !important;
-            }
-            th { background-color: #f1f5f9 !important; color: black !important; }
-            td { color: black !important; border-bottom: 1px solid #eee !important; }
-            #facultyTotal { color: black !important; }
+            .glass-card { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+            th { background: #f8fafc !important; color: black !important; border: 1px solid #ddd !important; }
+            td { color: black !important; border: 1px solid #ddd !important; }
+            #facultyTotal { color: #4f46e5 !important; }
+            span.bg-indigo-500\/10 { background: #eee !important; color: black !important; border: 1px solid #ccc !important; }
         }
     </style>
 </head>
-<body class="min-h-screen py-10 px-4 md:px-10">
+<body class="min-h-screen p-6 md:p-12">
 
-    <header class="max-w-7xl mx-auto flex justify-between items-end mb-12 no-print">
-        <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Catalyst Admin</h1>
-            <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-widest">Faculty Log Dashboard</p>
+    <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-12 no-print gap-6">
+        <div class="text-center md:text-left">
+            <h1 class="text-3xl font-black tracking-tighter uppercase">Audit Command Center</h1>
+            <p class="text-indigo-500 text-[10px] font-bold tracking-[0.4em] uppercase">Catalyst Education Management</p>
         </div>
-        <button onclick="window.print()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
-            Print / Export PDF
+        <button onclick="window.print()" class="px-8 py-3 bg-white text-black font-black text-xs uppercase tracking-widest rounded-full hover:bg-indigo-500 hover:text-white transition-all shadow-xl">
+            Export Report (PDF)
         </button>
     </header>
 
     <main class="max-w-7xl mx-auto">
         
         <div id="facultyMenu" class="grid grid-cols-1 md:grid-cols-3 gap-8 no-print">
-            <div onclick="showFacultyDetails('Fadil')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
-                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-indigo-600 group-hover:text-white transition-all">F</div>
-                <h2 class="text-xl font-bold text-slate-800">Fadil</h2>
-                <p id="count-Fadil" class="text-slate-400 text-xs mt-1">Loading...</p>
+            <div onclick="showFacultyDetails('Fadil')" class="faculty-btn p-10 rounded-[2.5rem] cursor-pointer text-center group">
+                <div class="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-6 font-black text-xl group-hover:bg-indigo-500 group-hover:text-white transition-all">F</div>
+                <h2 class="text-xl font-bold tracking-tight">Fadil</h2>
+                <p id="count-Fadil" class="text-slate-500 text-[10px] mt-2 uppercase font-bold tracking-widest">Scanning...</p>
             </div>
 
-            <div onclick="showFacultyDetails('Yasar')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">Y</div>
-                <h2 class="text-xl font-bold text-slate-800">Yasar</h2>
-                <p id="count-Yasar" class="text-slate-400 text-xs mt-1">Loading...</p>
+            <div onclick="showFacultyDetails('Yasar')" class="faculty-btn p-10 rounded-[2.5rem] cursor-pointer text-center group">
+                <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-6 font-black text-xl group-hover:bg-emerald-500 group-hover:text-white transition-all">Y</div>
+                <h2 class="text-xl font-bold tracking-tight">Yasar</h2>
+                <p id="count-Yasar" class="text-slate-500 text-[10px] mt-2 uppercase font-bold tracking-widest">Scanning...</p>
             </div>
 
-            <div onclick="showFacultyDetails('Yadu')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
-                <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-all">Y</div>
-                <h2 class="text-xl font-bold text-slate-800">Yadu</h2>
-                <p id="count-Yadu" class="text-slate-400 text-xs mt-1">Loading...</p>
+            <div onclick="showFacultyDetails('Yadu')" class="faculty-btn p-10 rounded-[2.5rem] cursor-pointer text-center group">
+                <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-6 font-black text-xl group-hover:bg-orange-500 group-hover:text-white transition-all">Y</div>
+                <h2 class="text-xl font-bold tracking-tight">Yadu</h2>
+                <p id="count-Yadu" class="text-slate-500 text-[10px] mt-2 uppercase font-bold tracking-widest">Scanning...</p>
             </div>
         </div>
 
         <div id="detailView" class="hidden">
-            <button onclick="goBack()" class="no-print mb-6 text-xs font-bold text-slate-400 hover:text-slate-900 transition flex items-center">
-                <span class="mr-2">←</span> BACK TO SUMMARY
+            <button onclick="goBack()" class="no-print mb-8 text-[10px] font-black text-slate-500 hover:text-white transition flex items-center tracking-widest uppercase">
+                <span class="mr-2 text-lg">←</span> Back to Summary
             </button>
             
-            <div class="glass-card rounded-3xl overflow-hidden">
-                <div class="p-8 md:p-12 border-b border-slate-100 flex flex-col md:row justify-between items-center gap-6">
+            <div class="glass-card rounded-[3rem] overflow-hidden">
+                <div class="p-8 md:p-12 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div class="text-center md:text-left">
-                        <h2 id="detailTitle" class="text-4xl font-extrabold text-slate-900 tracking-tight">Report</h2>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Faculty Performance Audit</p>
+                        <h2 id="detailTitle" class="text-4xl font-black tracking-tighter uppercase">Audit Report</h2>
+                        <div class="flex items-center gap-3 mt-3 justify-center md:justify-start">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Verified Cloud Data</p>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 border border-slate-100 px-10 py-5 rounded-2xl text-center">
-                        <span class="text-[10px] block font-bold text-slate-400 uppercase tracking-widest mb-1">Total Teaching Hours</span>
-                        <span id="facultyTotal" class="text-4xl font-black text-indigo-600">0.00 hrs</span>
+                    <div class="bg-white/[0.03] border border-white/5 px-12 py-6 rounded-[2rem] text-center">
+                        <span class="text-[9px] block font-bold text-indigo-400 uppercase tracking-widest mb-2">Total Accumulated Hours</span>
+                        <span id="facultyTotal" class="text-4xl font-black text-white">0.00 hrs</span>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-[0.15em] font-bold border-b">
+                            <tr class="bg-white/[0.02] text-slate-500 text-[9px] uppercase tracking-widest font-black border-b border-white/5">
                                 <th class="p-5">Date</th>
+                                <th class="p-5">Branch/Batch</th>
                                 <th class="p-5">Section</th>
                                 <th class="p-5">Subtopic</th>
-                                <th class="p-5">Time</th>
-                                <th class="p-5">Net Hrs</th>
-                                <th class="p-5 text-center">Class Qns</th>
-                                <th class="p-5 text-center">HW Qns</th>
-                                <th class="p-5">Software</th>
+                                <th class="p-5">Timing</th>
+                                <th class="p-5">Net</th>
+                                <th class="p-5 text-center">Class Q</th>
+                                <th class="p-5 text-center">HW Q</th>
+                                <th class="p-5">Softwares</th>
                             </tr>
                         </thead>
-                        <tbody id="detailTable" class="divide-y divide-slate-100 bg-white">
+                        <tbody id="detailTable" class="divide-y divide-white/5">
                             </tbody>
                     </table>
                 </div>
