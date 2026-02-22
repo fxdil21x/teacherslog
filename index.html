@@ -23,12 +23,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Logic for Dynamic Faculty Names based on Course
+        window.updateFacultyList = function(course) {
+            const facultySelect = document.getElementById('facultyName');
+            facultySelect.innerHTML = '<option value="">Choose Faculty</option>';
+            
+            let names = [];
+            if (course === "CMA USA") names = ["Fadil", "Yasar", "Yadu"];
+            else if (course === "CMA INDIA") names = ["Rahkib"];
+            else if (course === "ACCA") names = ["Jebin"];
+            else if (course === "EA") names = ["Fadil"];
+            else if (course === "CA") names = ["Yasar"];
+
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                facultySelect.appendChild(opt);
+            });
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('logForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('submitBtn');
                 
-                // Get Multiple Selected Softwares
                 const selectedSoftwares = Array.from(document.querySelectorAll('input[name="software"]:checked'))
                                               .map(cb => cb.value);
 
@@ -41,6 +60,7 @@
                 btn.disabled = true;
 
                 const formData = {
+                    course: document.getElementById('course').value,
                     facultyName: document.getElementById('facultyName').value,
                     branch: document.getElementById('branch').value,
                     batch: document.getElementById('batch').value,
@@ -59,11 +79,9 @@
                 try {
                     await addDoc(collection(db, "faculty_logs"), formData);
                     alert("Success! Data synced to cloud.");
-                    e.target.reset();
-                    document.getElementById('totalHours').innerText = "0.00 hrs";
+                    location.reload(); // Reset everything
                 } catch (error) {
                     alert("Error connecting to cloud.");
-                } finally {
                     btn.innerText = "Submit Faculty Log";
                     btn.disabled = false;
                 }
@@ -76,49 +94,14 @@
             font-family: 'Inter', sans-serif; 
             background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
                         url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
+            background-size: cover; background-position: center; background-attachment: fixed; color: white;
         }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        input, select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-            min-height: 54px;
-        }
-
-        input:focus, select:focus {
-            border-color: rgba(99, 102, 241, 0.6) !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            outline: none;
-        }
-
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        input, select { background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: white !important; min-height: 54px; }
+        input:focus, select:focus { border-color: rgba(99, 102, 241, 0.6) !important; background: rgba(255, 255, 255, 0.1) !important; outline: none; }
         option { background: #1e293b; color: white; }
-
-        label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        /* Checkbox styling */
-        .software-chip input:checked + span {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: #6366f1;
-            color: white;
-        }
+        label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.5); margin-bottom: 8px; display: block; }
+        .software-chip input:checked + span { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: white; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center py-10 px-4">
@@ -133,32 +116,43 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label>Identity</label>
-                    <select id="facultyName" required class="w-full px-4 rounded-2xl">
-                        <option value="">Choose Faculty</option>
-                        <option value="Fadil">Fadil</option>
-                        <option value="Yasar">Yasar</option>
-                        <option value="Yadu">Yadu</option>
+                    <label>Course Name</label>
+                    <select id="course" required onchange="updateFacultyList(this.value)" class="w-full px-4 rounded-2xl">
+                        <option value="">Select Course</option>
+                        <option value="CMA USA">CMA USA</option>
+                        <option value="CMA INDIA">CMA INDIA</option>
+                        <option value="ACCA">ACCA</option>
+                        <option value="EA">EA</option>
+                        <option value="CA">CA</option>
                     </select>
                 </div>
                 <div>
-                    <label>Branch</label>
-                    <select id="branch" required class="w-full px-4 rounded-2xl">
-                        <option value="">Select Location</option>
-                        <option value="Kannur">Kannur</option>
-                        <option value="Vadakara">Vadakara</option>
-                        <option value="Calicut">Calicut</option>
-                        <option value="Manjeri">Manjeri</option>
-                        <option value="Trissur">Trissur</option>
+                    <label>Identity (Faculty)</label>
+                    <select id="facultyName" required class="w-full px-4 rounded-2xl">
+                        <option value="">Select Course First</option>
                     </select>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label>Batch Details</label>
-                    <input type="text" id="batch" required placeholder="e.g. CMA USA A" class="w-full px-4 rounded-2xl">
+                    <label>Branch</label>
+                    <select id="branch" required class="w-full px-4 rounded-2xl">
+                        <option value="">Select Location</option>
+                        <option value="Kannur">Kannur Branch</option>
+                        <option value="Vadakara">Vadakara Branch</option>
+                        <option value="Calicut">Calicut Branch</option>
+                        <option value="Manjeri">Manjeri Branch</option>
+                        <option value="Trissur">Trissur Branch</option>
+                    </select>
                 </div>
+                <div>
+                    <label>Batch Details</label>
+                    <input type="text" id="batch" required placeholder="e.g. Morning Batch A" class="w-full px-4 rounded-2xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label>Section</label>
                     <select id="section" required onchange="updateSubtopics(this.value)" class="w-full px-4 rounded-2xl">
@@ -167,19 +161,17 @@
                         <option value="Part 1 Sec B">Part 1 Sec B</option>
                     </select>
                 </div>
-            </div>
-
-            <div id="subtopicContainer">
-                <label>Subtopic</label>
-                <input type="text" id="subtopic" required placeholder="Select section first..." class="w-full px-4 rounded-2xl" disabled>
+                <div id="subtopicContainer">
+                    <label>Subtopic</label>
+                    <input type="text" id="subtopic" required placeholder="Select section..." class="w-full px-4 rounded-2xl" disabled>
+                </div>
             </div>
 
             <div class="p-8 rounded-[2rem] bg-indigo-500/5 border border-white/5">
                 <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">Duration Calculation</h3>
+                    <h3 class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">Time Management</h3>
                     <span id="totalHours" class="text-3xl font-black text-white">0.00 hrs</span>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="text-indigo-300/50">Start Time</label>
@@ -191,51 +183,28 @@
                     </div>
                     <div>
                         <label class="text-indigo-300/50">Break (Mins)</label>
-                        <input type="number" id="breakTime" value="0" min="0" class="time-trigger w-full px-4 rounded-xl">
+                        <input type="number" id="breakTime" value="0" class="time-trigger w-full px-4 rounded-xl">
                     </div>
                 </div>
             </div>
 
             <div>
-                <label class="mb-4">Softwares Used (Select Multiple)</label>
+                <label class="mb-4">Softwares Used</label>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                    <label class="software-chip cursor-pointer">
-                        <input type="checkbox" name="software" value="Hock" class="hidden">
-                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">HOCK</span>
-                    </label>
-                    <label class="software-chip cursor-pointer">
-                        <input type="checkbox" name="software" value="Gliem" class="hidden">
-                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">GLIEM</span>
-                    </label>
-                    <label class="software-chip cursor-pointer">
-                        <input type="checkbox" name="software" value="Willey" class="hidden">
-                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">WILLEY</span>
-                    </label>
-                    <label class="software-chip cursor-pointer">
-                        <input type="checkbox" name="software" value="Becker" class="hidden">
-                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">BECKER</span>
-                    </label>
-                    <label class="software-chip cursor-pointer">
-                        <input type="checkbox" name="software" value="Personal reference" class="hidden">
-                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">PERSONAL REF</span>
-                    </label>
+                    <label class="software-chip cursor-pointer"><input type="checkbox" name="software" value="Hock" class="hidden"><span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all uppercase">Hock</span></label>
+                    <label class="software-chip cursor-pointer"><input type="checkbox" name="software" value="Gliem" class="hidden"><span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all uppercase">Gliem</span></label>
+                    <label class="software-chip cursor-pointer"><input type="checkbox" name="software" value="Willey" class="hidden"><span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all uppercase">Willey</span></label>
+                    <label class="software-chip cursor-pointer"><input type="checkbox" name="software" value="Becker" class="hidden"><span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all uppercase">Becker</span></label>
+                    <label class="software-chip cursor-pointer"><input type="checkbox" name="software" value="Personal reference" class="hidden"><span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all uppercase">Ref</span></label>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label>Questions in Class</label>
-                    <input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl">
-                </div>
-                <div>
-                    <label>Questions for HW</label>
-                    <input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl">
-                </div>
+                <div><label>Questions in Class</label><input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl"></div>
+                <div><label>Questions for HW</label><input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl"></div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/10 transition-all active:scale-[0.97] uppercase tracking-widest text-xs">
-                Submit Faculty Log
-            </button>
+            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl transition-all active:scale-[0.97] uppercase tracking-widest text-xs">Submit Faculty Log</button>
         </form>
     </div>
 
@@ -244,22 +213,11 @@
             const container = document.getElementById('subtopicContainer');
             const label = `<label>Subtopic Covered</label>`;
             if (val === "Part 1 Sec A") {
-                container.innerHTML = `${label}
-                    <select id="subtopic" required class="w-full px-4 rounded-2xl outline-none">
-                        <option value="">Choose Topic...</option>
-                        <option value="Income statement">1. Income statement</option>
-                        <option value="Balance sheet">2. Balance sheet</option>
-                    </select>`;
+                container.innerHTML = `${label}<select id="subtopic" required class="w-full px-4 rounded-2xl outline-none"><option value="">Choose Topic...</option><option value="Income statement">1. Income statement</option><option value="Balance sheet">2. Balance sheet</option></select>`;
             } else if (val === "Part 1 Sec B") {
-                container.innerHTML = `${label}
-                    <select id="subtopic" required class="w-full px-4 rounded-2xl outline-none">
-                        <option value="">Choose Topic...</option>
-                        <option value="Budgeting">1. Budgeting</option>
-                        <option value="Forcasting">2. Forcasting</option>
-                    </select>`;
+                container.innerHTML = `${label}<select id="subtopic" required class="w-full px-4 rounded-2xl outline-none"><option value="">Choose Topic...</option><option value="Budgeting">1. Budgeting</option><option value="Forcasting">2. Forcasting</option></select>`;
             } else {
-                container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full px-4 rounded-2xl outline-none" disabled>`;
+                container.innerHTML = `${label}<input type="text" id="subtopic" required placeholder="Select section..." class="w-full px-4 rounded-2xl outline-none" disabled>`;
             }
         };
 
