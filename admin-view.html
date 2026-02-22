@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Audit | Admin Dashboard</title>
+    <title>Faculty Audit | Professional Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 1. PASSWORD GATE
+        // PASSWORD GATE
         const pass = prompt("Enter Administrator Password:");
         if (pass !== "1122") { 
             alert("Unauthorized Access");
-            document.body.innerHTML = "<div class='h-screen flex items-center justify-center bg-slate-950 text-red-500 font-bold text-2xl tracking-tighter italic'>ACCESS DENIED</div>";
+            document.body.innerHTML = "<div class='h-screen flex items-center justify-center bg-slate-50 text-slate-400 font-bold text-xl uppercase tracking-widest'>Access Denied</div>";
         }
 
         const firebaseConfig = {
@@ -44,7 +44,7 @@
             const filtered = allLogs.filter(log => log.facultyName === name);
             document.getElementById('facultyMenu').classList.add('hidden');
             document.getElementById('detailView').classList.remove('hidden');
-            document.getElementById('detailTitle').innerText = name;
+            document.getElementById('detailTitle').innerText = name + "'s Audit";
             
             const tableBody = document.getElementById('detailTable');
             tableBody.innerHTML = "";
@@ -53,15 +53,15 @@
             filtered.forEach(log => {
                 totalHrs += parseFloat(log.netHours) || 0;
                 tableBody.innerHTML += `
-                    <tr class="border-b border-white/5 hover:bg-white/5 transition text-xs">
-                        <td class="p-4 font-bold text-white/80">${log.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
-                        <td class="p-4 text-indigo-400 font-bold">${log.section}</td>
-                        <td class="p-4 text-white/60 font-medium">${log.subtopic}</td>
-                        <td class="p-4 text-white/40">${log.startTime} - ${log.endTime}</td>
-                        <td class="p-4 font-black text-white text-sm">${log.netHours}</td>
-                        <td class="p-4 text-center"><span class="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-md font-bold">${log.classQuestions || 0}</span></td>
-                        <td class="p-4 text-center"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-md font-bold">${log.hwQuestions || 0}</span></td>
-                        <td class="p-4 text-white/40 uppercase font-bold tracking-tighter">${log.softwareUsed || '-'}</td>
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition text-xs">
+                        <td class="p-4 font-semibold text-slate-700">${log.timestamp?.toDate().toLocaleDateString() || 'N/A'}</td>
+                        <td class="p-4 font-bold text-indigo-600">${log.section}</td>
+                        <td class="p-4 text-slate-600">${log.subtopic}</td>
+                        <td class="p-4 text-slate-400">${log.startTime} - ${log.endTime}</td>
+                        <td class="p-4 font-extrabold text-slate-900">${log.netHours}</td>
+                        <td class="p-4 text-center font-bold text-blue-600 bg-blue-50/30">${log.classQuestions || 0}</td>
+                        <td class="p-4 text-center font-bold text-emerald-600 bg-emerald-50/30">${log.hwQuestions || 0}</td>
+                        <td class="p-4 text-slate-400 uppercase font-medium text-[10px]">${log.softwareUsed || '-'}</td>
                     </tr>
                 `;
             });
@@ -77,7 +77,7 @@
             facultyList.forEach(name => {
                 const count = allLogs.filter(log => log.facultyName === name).length;
                 const element = document.getElementById(`count-${name}`);
-                if(element) element.innerText = count + " entries found";
+                if(element) element.innerText = count + " entries";
             });
         }
     </script>
@@ -85,122 +85,117 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), 
-                        url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
         .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(25px); 
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
         .faculty-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            background: white;
+            border: 1px solid #e2e8f0;
         }
 
         .faculty-card:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(99, 102, 241, 0.4);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: translateY(-4px);
+            border-color: #6366f1;
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
         }
 
+        /* PRINT / PDF FIXES */
         @media print {
-            body { background: white !important; color: black !important; }
-            .glass-card { backdrop-filter: none; border: 1px solid #eee; background: white; }
-            nav, button { display: none !important; }
+            @page { margin: 1cm; }
+            body { background: white !important; }
+            .no-print { display: none !important; }
+            .glass-card { 
+                box-shadow: none !important; 
+                border: 1px solid #eee !important;
+                background: white !important;
+                backdrop-filter: none !important;
+            }
+            th { background-color: #f1f5f9 !important; color: black !important; }
+            td { color: black !important; border-bottom: 1px solid #eee !important; }
+            #facultyTotal { color: black !important; }
         }
     </style>
 </head>
-<body class="min-h-screen py-10 px-4">
+<body class="min-h-screen py-10 px-4 md:px-10">
 
-    <nav class="max-w-7xl mx-auto flex justify-between items-center mb-12 px-4">
+    <header class="max-w-7xl mx-auto flex justify-between items-end mb-12 no-print">
         <div>
-            <h1 class="text-3xl font-black tracking-tighter italic uppercase text-white">Catalyst Admin</h1>
-            <p class="text-indigo-400 text-[10px] font-bold tracking-[0.3em] uppercase opacity-70">Faculty Management System</p>
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Catalyst Admin</h1>
+            <p class="text-slate-400 text-sm font-medium mt-1 uppercase tracking-widest">Faculty Log Dashboard</p>
         </div>
-        <button onclick="window.print()" class="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-xl transition-all font-bold uppercase tracking-widest shadow-xl">
-            Export PDF
+        <button onclick="window.print()" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
+            Print / Export PDF
         </button>
-    </nav>
+    </header>
 
-    <main class="max-w-7xl mx-auto px-4">
+    <main class="max-w-7xl mx-auto">
         
-        <div id="facultyMenu" class="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in zoom-in duration-500">
-            <div onclick="showFacultyDetails('Fadil')" class="faculty-card p-10 rounded-[2.5rem] cursor-pointer group text-center">
-                <div class="w-16 h-16 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6 font-black text-2xl group-hover:scale-110 transition-transform">F</div>
-                <h2 class="text-2xl font-black text-white mb-2">Fadil</h2>
-                <p id="count-Fadil" class="text-white/40 text-xs font-medium tracking-wide italic">Loading stats...</p>
-                <div class="mt-8 pt-6 border-t border-white/5">
-                    <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Open Reports</span>
-                </div>
+        <div id="facultyMenu" class="grid grid-cols-1 md:grid-cols-3 gap-8 no-print">
+            <div onclick="showFacultyDetails('Fadil')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-indigo-600 group-hover:text-white transition-all">F</div>
+                <h2 class="text-xl font-bold text-slate-800">Fadil</h2>
+                <p id="count-Fadil" class="text-slate-400 text-xs mt-1">Loading...</p>
             </div>
 
-            <div onclick="showFacultyDetails('Yasar')" class="faculty-card p-10 rounded-[2.5rem] cursor-pointer group text-center">
-                <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 font-black text-2xl group-hover:scale-110 transition-transform">Y</div>
-                <h2 class="text-2xl font-black text-white mb-2">Yasar</h2>
-                <p id="count-Yasar" class="text-white/40 text-xs font-medium tracking-wide italic">Loading stats...</p>
-                <div class="mt-8 pt-6 border-t border-white/5">
-                    <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Open Reports</span>
-                </div>
+            <div onclick="showFacultyDetails('Yasar')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">Y</div>
+                <h2 class="text-xl font-bold text-slate-800">Yasar</h2>
+                <p id="count-Yasar" class="text-slate-400 text-xs mt-1">Loading...</p>
             </div>
 
-            <div onclick="showFacultyDetails('Yadu')" class="faculty-card p-10 rounded-[2.5rem] cursor-pointer group text-center">
-                <div class="w-16 h-16 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-6 font-black text-2xl group-hover:scale-110 transition-transform">Y</div>
-                <h2 class="text-2xl font-black text-white mb-2">Yadu</h2>
-                <p id="count-Yadu" class="text-white/40 text-xs font-medium tracking-wide italic">Loading stats...</p>
-                <div class="mt-8 pt-6 border-t border-white/5">
-                    <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest">Open Reports</span>
-                </div>
+            <div onclick="showFacultyDetails('Yadu')" class="faculty-card p-10 rounded-3xl cursor-pointer text-center group">
+                <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 font-bold text-xl group-hover:bg-orange-600 group-hover:text-white transition-all">Y</div>
+                <h2 class="text-xl font-bold text-slate-800">Yadu</h2>
+                <p id="count-Yadu" class="text-slate-400 text-xs mt-1">Loading...</p>
             </div>
         </div>
 
-        <div id="detailView" class="hidden animate-in slide-in-from-bottom-8 duration-500">
-            <button onclick="goBack()" class="group mb-8 flex items-center text-[10px] font-bold text-white/40 hover:text-white transition-all uppercase tracking-widest">
-                <span class="mr-2 group-hover:-translate-x-1 transition-transform">←</span> Return to Dashboard
+        <div id="detailView" class="hidden">
+            <button onclick="goBack()" class="no-print mb-6 text-xs font-bold text-slate-400 hover:text-slate-900 transition flex items-center">
+                <span class="mr-2">←</span> BACK TO SUMMARY
             </button>
             
-            <div class="glass-card rounded-[3rem] overflow-hidden">
-                <div class="p-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <h2 id="detailTitle" class="text-4xl font-black text-white uppercase tracking-tighter italic">Report</h2>
-                        <p class="text-indigo-400 text-[10px] font-bold tracking-[0.4em] uppercase mt-2">Comprehensive Session History</p>
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <div class="p-8 md:p-12 border-b border-slate-100 flex flex-col md:row justify-between items-center gap-6">
+                    <div class="text-center md:text-left">
+                        <h2 id="detailTitle" class="text-4xl font-extrabold text-slate-900 tracking-tight">Report</h2>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Faculty Performance Audit</p>
                     </div>
-                    <div class="text-center md:text-right bg-white/5 px-8 py-4 rounded-3xl border border-white/5">
-                        <span class="text-[9px] block font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Cumulative Net Hours</span>
-                        <span id="facultyTotal" class="text-4xl font-black text-white">0.00 hrs</span>
+                    <div class="bg-slate-50 border border-slate-100 px-10 py-5 rounded-2xl text-center">
+                        <span class="text-[10px] block font-bold text-slate-400 uppercase tracking-widest mb-1">Total Teaching Hours</span>
+                        <span id="facultyTotal" class="text-4xl font-black text-indigo-600">0.00 hrs</span>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-white/5 text-white/30 text-[9px] uppercase tracking-widest font-black">
-                                <th class="p-6">Date</th>
-                                <th class="p-6">Section</th>
-                                <th class="p-6">Subtopic</th>
-                                <th class="p-6">Time Slot</th>
-                                <th class="p-6">Net Hrs</th>
-                                <th class="p-6 text-center">Class Qns</th>
-                                <th class="p-6 text-center">HW Qns</th>
-                                <th class="p-6">Software</th>
+                            <tr class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-[0.15em] font-bold border-b">
+                                <th class="p-5">Date</th>
+                                <th class="p-5">Section</th>
+                                <th class="p-5">Subtopic</th>
+                                <th class="p-5">Time</th>
+                                <th class="p-5">Net Hrs</th>
+                                <th class="p-5 text-center">Class Qns</th>
+                                <th class="p-5 text-center">HW Qns</th>
+                                <th class="p-5">Software</th>
                             </tr>
                         </thead>
-                        <tbody id="detailTable" class="divide-y divide-white/5">
+                        <tbody id="detailTable" class="divide-y divide-slate-100 bg-white">
                             </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </main>
 
 </body>
