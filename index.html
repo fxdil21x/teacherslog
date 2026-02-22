@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Portal | Catalyst Education</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -17,8 +17,7 @@
             projectId: "faculty-log-35efd",
             storageBucket: "faculty-log-35efd.firebasestorage.app",
             messagingSenderId: "857603228966",
-            appId: "1:857603228966:web:7b6420fe4d0e241f91ede7",
-            measurementId: "G-BG76MMD0SD"
+            appId: "1:857603228966:web:7b6420fe4d0e241f91ede7"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -28,9 +27,17 @@
             document.getElementById('logForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('submitBtn');
-                const btnText = document.getElementById('btnText');
                 
-                btnText.innerText = "Syncing...";
+                // Get Multiple Selected Softwares
+                const selectedSoftwares = Array.from(document.querySelectorAll('input[name="software"]:checked'))
+                                              .map(cb => cb.value);
+
+                if(selectedSoftwares.length === 0) {
+                    alert("Please select at least one Software/Reference.");
+                    return;
+                }
+
+                btn.innerText = "Syncing Data...";
                 btn.disabled = true;
 
                 const formData = {
@@ -45,20 +52,19 @@
                     netHours: document.getElementById('totalHours').innerText,
                     classQuestions: document.getElementById('classQs').value,
                     hwQuestions: document.getElementById('hwQs').value,
-                    softwareUsed: document.getElementById('software').value,
+                    softwares: selectedSoftwares,
                     timestamp: serverTimestamp()
                 };
 
                 try {
                     await addDoc(collection(db, "faculty_logs"), formData);
-                    alert("Session Logged Successfully!");
+                    alert("Success! Data synced to cloud.");
                     e.target.reset();
                     document.getElementById('totalHours').innerText = "0.00 hrs";
-                    updateSubtopics("");
                 } catch (error) {
                     alert("Error connecting to cloud.");
                 } finally {
-                    btnText.innerText = "Submit Faculty Log";
+                    btn.innerText = "Submit Faculty Log";
                     btn.disabled = false;
                 }
             });
@@ -68,95 +74,94 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            /* Kept background photo with a light overlay for readability */
-            background: linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.85)), 
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
                         url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            color: #1e293b;
+            color: white;
         }
 
-        .light-glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         input, select {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border: 1px solid #e2e8f0 !important;
-            color: #1e293b !important;
-            height: 54px; /* Better for mobile touch */
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            min-height: 54px;
         }
 
         input:focus, select:focus {
-            border-color: #6366f1 !important;
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
             outline: none;
-            background: #fff !important;
         }
+
+        option { background: #1e293b; color: white; }
 
         label {
             font-size: 10px;
-            font-weight: 800;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #64748b;
+            letter-spacing: 0.15em;
+            color: rgba(255, 255, 255, 0.5);
             margin-bottom: 8px;
-            margin-left: 4px;
             display: block;
         }
 
-        .time-card {
-            background: rgba(99, 102, 241, 0.04);
-            border: 1px solid rgba(99, 102, 241, 0.1);
+        /* Checkbox styling */
+        .software-chip input:checked + span {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: white;
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center py-10 px-4">
 
-    <div class="max-w-3xl w-full light-glass rounded-[2.5rem] overflow-hidden">
-        <div class="pt-10 pb-6 text-center border-b border-slate-200/50">
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">FACULTY PORTAL</h1>
-            <p class="text-indigo-600 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Session Logging System</p>
+    <div class="max-w-3xl w-full glass-card rounded-[3rem] overflow-hidden shadow-2xl">
+        <div class="pt-10 pb-6 text-center border-b border-white/5">
+            <h1 class="text-3xl font-black tracking-tighter italic uppercase text-white">Faculty Portal</h1>
+            <p class="text-indigo-400 text-[10px] font-bold mt-1 uppercase tracking-[0.4em]">Catalyst Education</p>
         </div>
 
-        <form id="logForm" class="p-6 md:p-10 space-y-6">
+        <form id="logForm" class="p-8 md:p-12 space-y-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label>Faculty Name</label>
-                    <select id="facultyName" required class="w-full px-4 rounded-2xl shadow-sm">
-                        <option value="">Select Name</option>
+                    <label>Identity</label>
+                    <select id="facultyName" required class="w-full px-4 rounded-2xl">
+                        <option value="">Choose Faculty</option>
                         <option value="Fadil">Fadil</option>
                         <option value="Yasar">Yasar</option>
                         <option value="Yadu">Yadu</option>
                     </select>
                 </div>
                 <div>
-                    <label>Branch Location</label>
-                    <select id="branch" required class="w-full px-4 rounded-2xl shadow-sm">
-                        <option value="">Select Branch</option>
-                        <option value="Kannur">Kannur Branch</option>
-                        <option value="Vadakara">Vadakara Branch</option>
-                        <option value="Calicut">Calicut Branch</option>
-                        <option value="Manjeri">Manjeri Branch</option>
-                        <option value="Trissur">Trissur Branch</option>
+                    <label>Branch</label>
+                    <select id="branch" required class="w-full px-4 rounded-2xl">
+                        <option value="">Select Location</option>
+                        <option value="Kannur">Kannur</option>
+                        <option value="Vadakara">Vadakara</option>
+                        <option value="Calicut">Calicut</option>
+                        <option value="Manjeri">Manjeri</option>
+                        <option value="Trissur">Trissur</option>
                     </select>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label>Batch Code / Name</label>
-                    <input type="text" id="batch" required placeholder="e.g. BCM-2024" class="w-full px-4 rounded-2xl shadow-sm">
+                    <label>Batch Details</label>
+                    <input type="text" id="batch" required placeholder="e.g. CMA USA A" class="w-full px-4 rounded-2xl">
                 </div>
                 <div>
-                    <label>Session Section</label>
-                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full px-4 rounded-2xl shadow-sm">
+                    <label>Section</label>
+                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full px-4 rounded-2xl">
                         <option value="">Select Section</option>
                         <option value="Part 1 Sec A">Part 1 Sec A</option>
                         <option value="Part 1 Sec B">Part 1 Sec B</option>
@@ -165,49 +170,71 @@
             </div>
 
             <div id="subtopicContainer">
-                <label>Subtopic Covered</label>
-                <input type="text" id="subtopic" required placeholder="Select section first..." class="w-full px-4 rounded-2xl shadow-sm" disabled>
+                <label>Subtopic</label>
+                <input type="text" id="subtopic" required placeholder="Select section first..." class="w-full px-4 rounded-2xl" disabled>
             </div>
 
-            <div class="p-6 rounded-3xl time-card">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Time Management</h3>
-                    <span id="totalHours" class="text-2xl font-black text-slate-900">0.00 hrs</span>
+            <div class="p-8 rounded-[2rem] bg-indigo-500/5 border border-white/5">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">Duration Calculation</h3>
+                    <span id="totalHours" class="text-3xl font-black text-white">0.00 hrs</span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="text-indigo-400">Start Time</label>
-                        <input type="time" id="startTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                        <label class="text-indigo-300/50">Start Time</label>
+                        <input type="time" id="startTime" required class="time-trigger w-full px-4 rounded-xl">
                     </div>
                     <div>
-                        <label class="text-indigo-400">End Time</label>
-                        <input type="time" id="endTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                        <label class="text-indigo-300/50">End Time</label>
+                        <input type="time" id="endTime" required class="time-trigger w-full px-4 rounded-xl">
                     </div>
                     <div>
-                        <label class="text-indigo-400">Break (Mins)</label>
-                        <input type="number" id="breakTime" value="0" min="0" class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                        <label class="text-indigo-300/50">Break (Mins)</label>
+                        <input type="number" id="breakTime" value="0" min="0" class="time-trigger w-full px-4 rounded-xl">
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label>Class Qns</label>
-                    <input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
-                </div>
-                <div>
-                    <label>HW Qns</label>
-                    <input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
-                </div>
-                <div>
-                    <label>Tools Used</label>
-                    <input type="text" id="software" placeholder="Excel, etc." class="w-full px-4 rounded-2xl shadow-sm">
+            <div>
+                <label class="mb-4">Softwares Used (Select Multiple)</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    <label class="software-chip cursor-pointer">
+                        <input type="checkbox" name="software" value="Hock" class="hidden">
+                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">HOCK</span>
+                    </label>
+                    <label class="software-chip cursor-pointer">
+                        <input type="checkbox" name="software" value="Gliem" class="hidden">
+                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">GLIEM</span>
+                    </label>
+                    <label class="software-chip cursor-pointer">
+                        <input type="checkbox" name="software" value="Willey" class="hidden">
+                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">WILLEY</span>
+                    </label>
+                    <label class="software-chip cursor-pointer">
+                        <input type="checkbox" name="software" value="Becker" class="hidden">
+                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">BECKER</span>
+                    </label>
+                    <label class="software-chip cursor-pointer">
+                        <input type="checkbox" name="software" value="Personal reference" class="hidden">
+                        <span class="block text-center py-3 px-2 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold transition-all">PERSONAL REF</span>
+                    </label>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-[0.97] uppercase tracking-widest text-xs mt-4">
-                <span id="btnText">Submit Faculty Log</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label>Questions in Class</label>
+                    <input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl">
+                </div>
+                <div>
+                    <label>Questions for HW</label>
+                    <input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/10 transition-all active:scale-[0.97] uppercase tracking-widest text-xs">
+                Submit Faculty Log
             </button>
         </form>
     </div>
@@ -218,17 +245,21 @@
             const label = `<label>Subtopic Covered</label>`;
             if (val === "Part 1 Sec A") {
                 container.innerHTML = `${label}
-                    <select id="subtopic" required class="w-full px-4 rounded-2xl shadow-sm outline-none">
-                        <option value="">Select Accounting Topic</option>
+                    <select id="subtopic" required class="w-full px-4 rounded-2xl outline-none">
+                        <option value="">Choose Topic...</option>
                         <option value="Income statement">1. Income statement</option>
                         <option value="Balance sheet">2. Balance sheet</option>
                     </select>`;
             } else if (val === "Part 1 Sec B") {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Type subtopic name" class="w-full px-4 rounded-2xl shadow-sm outline-none">`;
+                    <select id="subtopic" required class="w-full px-4 rounded-2xl outline-none">
+                        <option value="">Choose Topic...</option>
+                        <option value="Budgeting">1. Budgeting</option>
+                        <option value="Forcasting">2. Forcasting</option>
+                    </select>`;
             } else {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full px-4 rounded-2xl shadow-sm outline-none" disabled>`;
+                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full px-4 rounded-2xl outline-none" disabled>`;
             }
         };
 
@@ -238,9 +269,9 @@
                 const end = document.getElementById('endTime').value;
                 const breakMin = parseInt(document.getElementById('breakTime').value) || 0;
                 if (start && end) {
-                    const sTime = new Date(`2000-01-01T${start}`);
-                    const eTime = new Date(`2000-01-01T${end}`);
-                    let diff = (eTime - sTime) / 60000;
+                    const sDate = new Date(`2000-01-01T${start}`);
+                    const eDate = new Date(`2000-01-01T${end}`);
+                    let diff = (eDate - sDate) / 60000;
                     if (diff < 0) diff += 1440;
                     const netMinutes = Math.max(0, diff - breakMin);
                     document.getElementById('totalHours').innerText = (netMinutes / 60).toFixed(2) + " hrs";
