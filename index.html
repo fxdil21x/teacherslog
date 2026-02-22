@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Session Portal | Institute</title>
+    <title>Faculty Portal | Catalyst Education</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -30,7 +30,7 @@
                 const btn = document.getElementById('submitBtn');
                 const btnText = document.getElementById('btnText');
                 
-                btnText.innerText = "Syncing...";
+                btnText.innerText = "Syncing Data...";
                 btn.disabled = true;
 
                 const formData = {
@@ -49,12 +49,12 @@
 
                 try {
                     await addDoc(collection(db, "faculty_logs"), formData);
-                    alert("Log secure. Data synced to cloud.");
+                    alert("Session Logged Successfully!");
                     e.target.reset();
                     document.getElementById('totalHours').innerText = "0.00 hrs";
                     updateSubtopics("");
                 } catch (error) {
-                    alert("Connection error. Try again.");
+                    alert("Error connecting to cloud.");
                 } finally {
                     btnText.innerText = "Submit Faculty Log";
                     btn.disabled = false;
@@ -66,121 +66,126 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
+            background: linear-gradient(rgba(248, 250, 252, 0.8), rgba(248, 250, 252, 0.8)), 
                         url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            color: white;
+            color: #1e293b;
         }
 
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .light-glass { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
         }
 
         input, select {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1e293b !important;
+            height: 54px; /* Taller touch targets for mobile */
         }
 
         input:focus, select:focus {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border-color: rgba(99, 102, 241, 0.5) !important;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1 !important;
+            ring: 2px;
+            ring-color: #6366f1;
             outline: none;
         }
 
-        option { background: #0f172a; color: white; }
-
-        input:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .stat-box {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+        label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-left: 4px;
         }
 
-        /* Custom scrollbar for better look */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .duration-card {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px dashed rgba(99, 102, 241, 0.2);
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center py-12 px-4">
+<body class="min-h-screen flex items-center justify-center py-10 px-4">
 
-    <div class="max-w-3xl w-full glass-card shadow-2xl rounded-[2.5rem] overflow-hidden">
-        <div class="pt-10 pb-6 text-center border-b border-white/5">
-            <h1 class="text-4xl font-extrabold tracking-tighter uppercase">Faculty Portal</h1>
-            <p class="text-indigo-300/60 text-xs font-semibold mt-2 tracking-[0.2em] uppercase">Developed by Fadil</p>
+    <div class="max-w-2xl w-full light-glass rounded-[2.5rem] overflow-hidden">
+        <div class="pt-10 pb-6 text-center border-b border-slate-200/50">
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">FACULTY PORTAL</h1>
+            <p class="text-indigo-600 text-[10px] font-black mt-1 uppercase tracking-[0.3em]">Catalyst Education</p>
         </div>
 
-        <form id="logForm" class="p-8 md:p-12 space-y-8">
+        <form id="logForm" class="p-6 md:p-10 space-y-6">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Faculty Name</label>
-                    <select id="facultyName" required class="w-full p-4 rounded-2xl outline-none">
-                        <option value="">Select Identity</option>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col">
+                    <label class="mb-2">Your Name</label>
+                    <select id="facultyName" required class="w-full px-4 rounded-2xl shadow-sm">
+                        <option value="">Choose...</option>
                         <option value="Fadil">Fadil</option>
                         <option value="Yasar">Yasar</option>
                         <option value="Yadu">Yadu</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Session Section</label>
-                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full p-4 rounded-2xl outline-none">
-                        <option value="">Select Section</option>
+                <div class="flex flex-col">
+                    <label class="mb-2">Session Section</label>
+                    <select id="section" required onchange="updateSubtopics(this.value)" class="w-full px-4 rounded-2xl shadow-sm">
+                        <option value="">Choose Section...</option>
                         <option value="Part 1 Sec A">Part 1 Sec A</option>
                         <option value="Part 1 Sec B">Part 1 Sec B</option>
                     </select>
                 </div>
             </div>
 
-            <div id="subtopicContainer">
-                <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Subtopic Covered</label>
-                <input type="text" id="subtopic" required placeholder="Select section..." class="w-full p-4 rounded-2xl outline-none" disabled>
+            <div id="subtopicContainer" class="flex flex-col">
+                <label class="mb-2">Subtopic Covered</label>
+                <input type="text" id="subtopic" required placeholder="Select section first..." class="w-full px-4 rounded-2xl shadow-sm" disabled>
             </div>
 
-            <div class="p-8 rounded-[2rem] stat-box">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-indigo-400 font-bold text-xs uppercase tracking-[0.15em]">Time Management</h3>
-                    <span id="totalHours" class="text-3xl font-black text-white">0.00 hrs</span>
-                </div>
-                <div class="grid grid-cols-3 gap-6">
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Start</label>
-                        <input type="time" id="startTime" required class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Finish</label>
-                        <input type="time" id="endTime" required class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-white/40 uppercase tracking-tighter">Break</label>
-                        <input type="number" id="breakTime" value="0" class="time-trigger w-full mt-2 p-3 rounded-xl border-none">
+            <div class="p-6 rounded-3xl duration-card">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Duration Calculation</h3>
+                    <div class="text-right">
+                        <span id="totalHours" class="text-2xl font-black text-slate-900">0.00 hrs</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Class Qns</label>
-                    <input type="number" id="classQs" placeholder="0" class="w-full p-4 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">HW Qns</label>
-                    <input type="number" id="hwQs" placeholder="0" class="w-full p-4 rounded-2xl">
-                </div>
-                <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Tools Used</label>
-                    <input type="text" id="software" placeholder="Excel, SAP..." class="w-full p-4 rounded-2xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="flex flex-col">
+                        <label class="mb-1 text-[9px] text-indigo-400">Start Time</label>
+                        <input type="time" id="startTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="mb-1 text-[9px] text-indigo-400">End Time</label>
+                        <input type="time" id="endTime" required class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="mb-1 text-[9px] text-indigo-400">Break (Mins)</label>
+                        <input type="number" id="breakTime" value="0" class="time-trigger w-full px-4 rounded-xl shadow-sm border-none">
+                    </div>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-2xl shadow-indigo-500/20 transition-all active:scale-[0.98] uppercase tracking-widest text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex flex-col">
+                    <label class="mb-2">Class Qns</label>
+                    <input type="number" id="classQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label class="mb-2">HW Qns</label>
+                    <input type="number" id="hwQs" placeholder="0" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label class="mb-2">Software</label>
+                    <input type="text" id="software" placeholder="e.g. Excel" class="w-full px-4 rounded-2xl shadow-sm">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-all active:scale-95 uppercase tracking-widest text-xs mt-4">
                 <span id="btnText">Submit Faculty Log</span>
             </button>
         </form>
@@ -189,20 +194,20 @@
     <script>
         window.updateSubtopics = function(val) {
             const container = document.getElementById('subtopicContainer');
-            const label = `<label class="block text-[10px] uppercase tracking-widest font-bold text-white/50 mb-3 ml-1">Subtopic Covered</label>`;
+            const label = `<label class="mb-2">Subtopic Covered</label>`;
             if (val === "Part 1 Sec A") {
                 container.innerHTML = `${label}
-                    <select id="subtopic" required class="w-full p-4 rounded-2xl outline-none">
-                        <option value="">Select Accounting Topic</option>
+                    <select id="subtopic" required class="w-full px-4 rounded-2xl shadow-sm outline-none">
+                        <option value="">-- Select Accounting Topic --</option>
                         <option value="Income statement">1. Income statement</option>
                         <option value="Balance sheet">2. Balance sheet</option>
                     </select>`;
             } else if (val === "Part 1 Sec B") {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Type subtopic name" class="w-full p-4 rounded-2xl outline-none">`;
+                    <input type="text" id="subtopic" required placeholder="Enter topic for Sec B" class="w-full px-4 rounded-2xl shadow-sm outline-none">`;
             } else {
                 container.innerHTML = `${label}
-                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full p-4 rounded-2xl outline-none" disabled>`;
+                    <input type="text" id="subtopic" required placeholder="Select a section first..." class="w-full px-4 rounded-2xl shadow-sm outline-none" disabled>`;
             }
         };
 
@@ -211,6 +216,7 @@
                 const start = document.getElementById('startTime').value;
                 const end = document.getElementById('endTime').value;
                 const breakMin = parseInt(document.getElementById('breakTime').value) || 0;
+
                 if (start && end) {
                     const sTime = new Date(`2000-01-01T${start}`);
                     const eTime = new Date(`2000-01-01T${end}`);
