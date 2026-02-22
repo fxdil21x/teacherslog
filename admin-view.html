@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Faculty Records</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- PASTE YOUR SAME FIREBASE CONFIG HERE ---
+        const firebaseConfig = {
+  apiKey: "AIzaSyBrPtgCAM2DxKKExfqzZFmPFZx9ByMt_zA",
+  authDomain: "faculty-log-35efd.firebaseapp.com",
+  projectId: "faculty-log-35efd",
+  storageBucket: "faculty-log-35efd.firebasestorage.app",
+  messagingSenderId: "857603228966",
+  appId: "1:857603228966:web:7b6420fe4d0e241f91ede7",
+  measurementId: "G-BG76MMD0SD"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const logTable = document.getElementById('logTable');
+        const totalStats = document.getElementById('totalStats');
+
+        // Real-time listener to fetch logs
+        const q = query(collection(db, "faculty_logs"), orderBy("timestamp", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            logTable.innerHTML = "";
+            let totalInstituteHours = 0;
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const hours = parseFloat(data.netHours) || 0;
+                totalInstituteHours += hours;
+
+                const row = `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-4 font-semibold text-slate-700">${data.facultyName}</td>
+                        <td class="p-4 text-slate-600">${data.section}</td>
+                        <td class="p-4 text-slate-600">${data.subtopic}</td>
+                        <td class="p-4 font-bold text-indigo-600">${data.netHours}</td>
+                        <td class="p-4 text-slate-500 text-sm">${data.softwareUsed || 'N/A'}</td>
+                        <td class="p-4 text-slate-400 text-xs">${data.timestamp?.toDate().toLocaleDateString() || 'Pending...'}</td>
+                    </tr>
+                `;
+                logTable.innerHTML += row;
+            });
+
+            totalStats.innerText = totalInstituteHours.toFixed(2) + " Total Staff Hours";
+        });
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="bg-indigo-900 text-white p-6 shadow-lg">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight uppercase">Institute Admin Panel</h1>
+            <div id="totalStats" class="bg-indigo-700 px-4 py-2 rounded-lg text-sm font-bold">Loading stats...</div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto mt-10 p-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800">Recent Class Logs</h2>
+                <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded font-bold transition">Print Report</button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-widest">
+                            <th class="p-4 font-bold">Faculty</th>
+                            <th class="p-4 font-bold">Section</th>
+                            <th class="p-4 font-bold">Subtopic</th>
+                            <th class="p-4 font-bold">Duration</th>
+                            <th class="p-4 font-bold">Software</th>
+                            <th class="p-4 font-bold">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTable" class="text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
